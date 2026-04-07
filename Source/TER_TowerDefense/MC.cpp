@@ -8,7 +8,7 @@ AMC::AMC()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Movement 
-	GetCharacterMovement()->bOrientRotationToMovement = true; // tourne vers la direction
+	GetCharacterMovement()->bOrientRotationToMovement = true; // turning while moving
 	GetCharacterMovement()->RotationRate  = FRotator(0.f, 500.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed  = 500.f;
 	GetCharacterMovement()->JumpZVelocity = 600.f;
