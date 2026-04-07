@@ -11,11 +11,11 @@ class TER_TOWERDEFENSE_API APlantProducer : public APlantBase
 public:
 	APlantProducer();
 
-	// Intervalle en secondes entre chaque production
+	// Interval in secondes between each production
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Plant|Producer")
 	float ProductionInterval = 5.f;
 
-	// Quantite produite a chaque tick de production
+	// Quantity produced each production
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Plant|Producer")
 	int32 ProductionAmount = 25;
 

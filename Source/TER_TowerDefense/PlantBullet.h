@@ -12,11 +12,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	
-	// Intervalle en secondes entre chaque production
+	// Interval in secondes between each fire
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Plant|Producer")
 	float FireInterval = 5.f;
 
-	// Quantite produite a chaque tick de production
+	// Dmg dealt each fire
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Plant|Producer")
 	int32 FireAmount = 25;
 	

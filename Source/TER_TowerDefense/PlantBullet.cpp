@@ -24,7 +24,7 @@ void APlantBullet::Fire()
 	UE_LOG(LogTemp, Warning, TEXT("PlantProducer [%d,%d] produced %d resources"),
 		GridRow, GridCol, FireAmount);
 
-	// Debug : flash cyan au moment de la production
+	// Debug : flash cyan each Fire
 	DrawDebugSphere(GetWorld(), GetActorLocation(), 6.f, 8,
 		FColor::Cyan, false, 1.f, 0, 1.f);
 }
