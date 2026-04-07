@@ -1,6 +1,5 @@
 ﻿#pragma once
-
-#include "PlantBase.generated.h"
+#include "EnemyBase.generated.h"
 
 UCLASS(Abstract)
 class TER_TOWERDEFENSE_API AEnemyBase : public AActor
@@ -33,12 +32,4 @@ public:
 	UStaticMeshComponent* MeshComponent;
 
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable, Category = "Enemy")
-	virtual void TakeDamage_Plant(float Amount);
-
-	UFUNCTION(BlueprintCallable, Category = "Enemy")
-	virtual void OnDeath();
-
-	void InitOnGrid(int32 Row, int32 Col, FVector WorldCenter);
 };

@@ -27,6 +27,17 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	TObjectPtr<class UInputAction> ActionSauter;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	TObjectPtr<class UInputAction> ActionSpawnPlant_1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	TObjectPtr<class UInputAction> ActionSpawnPlant_2;
+
+	// GridManager 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid")
+	TObjectPtr<class AGridManager> GridManager;
+	
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -35,4 +46,6 @@ public:
 private :
 	void Move(const struct FInputActionValue& Value);
 	void Jump_();
+	void SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass);
+	void SpawnPlant(const struct FInputActionValue& Value);
 };

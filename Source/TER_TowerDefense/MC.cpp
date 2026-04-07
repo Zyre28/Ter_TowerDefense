@@ -2,7 +2,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GridManager.h"
 #include "InputActionValue.h"
+#include "PlantBullet.h"
+#include "EngineUtils.h"
+#include "PlantProducer.h"
+
 AMC::AMC()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -29,6 +34,13 @@ void AMC::BeginPlay()
 		PC->bShowMouseCursor  = true;
 		PC->bEnableClickEvents = true;
 	}
+	if (!GridManager) {
+		for (TActorIterator<AGridManager> It(GetWorld()); It; ++It) {
+			GridManager = *It;
+			UE_LOG(LogTemp, Warning, TEXT("Found GridManager: %s"), *GridManager->GetName());
+			break;
+		}
+	}
 }
 
 void AMC::Tick(float DeltaTime)
@@ -45,6 +57,8 @@ void AMC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		EIC->BindAction(ActionDeplacer, ETriggerEvent::Triggered, this, &AMC::Move);
 		EIC->BindAction(ActionSauter,   ETriggerEvent::Started,   this, &AMC::Jump_);
+		EIC->BindAction(ActionSpawnPlant_1, ETriggerEvent::Started,   this, &AMC::SpawnPlant);
+		EIC->BindAction(ActionSpawnPlant_2, ETriggerEvent::Started,   this, &AMC::SpawnPlant);
 	}
 }
 
@@ -62,4 +76,45 @@ void AMC::Move(const FInputActionValue& Value)
 void AMC::Jump_()
 {
 	Jump();
+}
+
+void AMC::SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass) {
+	int32 col = 0; int32 row = 0;
+	if (GridManager->WorldToGrid(GetActorLocation(), row, col)) {
+		UE_LOG(LogTemp, Warning, TEXT("Player is on grid cell [%d,%d]"), row, col);
+		GridManager->SpawnPlant(PlantClass, row, col);
+	} else {
+		UE_LOG(LogTemp, Warning, TEXT("Player is NOT on a valid grid cell"));
+	}
+}
+
+void AMC::SpawnPlant(const FInputActionValue& Value)
+{
+	float RawValue = Value.Get<float>();
+	int32 Key = FMath::RoundToInt(RawValue);
+
+	switch (Key)
+	{
+	case 0:
+		SpawnPlantInGrid(APlantProducer::StaticClass());
+		break;
+
+	case 1:
+		SpawnPlantInGrid(APlantBullet::StaticClass());
+		break;
+
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid plant key: %d"), Key);
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				5.f,
+				FColor::Red,
+				FString::Printf(TEXT("Invalid plant key: %d"), Key)
+			);
+		}
+		break;
+	}
 }
