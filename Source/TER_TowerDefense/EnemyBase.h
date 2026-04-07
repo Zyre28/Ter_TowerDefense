@@ -22,7 +22,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Plant|Stats")
 	float Damage = 10.f;
 
-	// Position sur la grille
+	// Position on grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Plant|Grid")
 	int32 GridRow = 0;
 
