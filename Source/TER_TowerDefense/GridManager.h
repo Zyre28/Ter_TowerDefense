@@ -69,6 +69,8 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	bool IsValidCell(int32 Row, int32 Col) const;
 	UFUNCTION(BlueprintCallable, Category = "Grid")
 	APlantBase* SpawnPlant(TSubclassOf<APlantBase> PlantClass, int32 Row, int32 Col);
+	UFUNCTION(BlueprintCallable, Category = "Grid")
+	AEnemyBase* SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass, int32 Row, int32 Col);
 	UFUNCTION(BlueprintCallable, Category="Grid")
 	FVector SnapToGrid(FVector WorldPos);
 	UFUNCTION(BlueprintCallable, Category="Grid")

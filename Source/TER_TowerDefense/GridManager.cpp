@@ -1,6 +1,7 @@
 #include "GridManager.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "EnemyBase.h"
 #include "Engine/World.h"
 
 AGridManager::AGridManager()
@@ -128,6 +129,41 @@ APlantBase* AGridManager::SpawnPlant(TSubclassOf<APlantBase> PlantClass, int32 R
         UE_LOG(LogTemp, Error, TEXT("Spawn FAILED at [%d,%d]"), Row, Col);
     }
     return NewPlant;
+}
+
+AEnemyBase* AGridManager::SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass, int32 Row, int32 Col)
+{
+    UE_LOG(LogTemp, Warning, TEXT("SpawnPlant called [%d,%d]"), Row, Col);
+    if (!IsValidCell(Row, Col) || !EnemyClass)
+        return nullptr;
+
+    FGridCell& Cell = Cells[Row * NumCols + Col];
+    if (!Cell.IsEmpty())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Cell [%d,%d] already occupied"), Row, Col);
+        return nullptr;
+    }
+
+    FVector WorldCenter = Cell.GetWorldCenter(GridOrigin, CellSizeX, CellSizeY);
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride =
+        ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    AEnemyBase* NewEnemy = GetWorld()->SpawnActor<AEnemyBase>(
+        EnemyClass, WorldCenter, FRotator::ZeroRotator, Params);
+
+    if (NewEnemy)
+    {   
+        NewEnemy->InitOnGrid(Row, Col, WorldCenter);
+
+        UE_LOG(LogTemp, Warning, TEXT("Spawned %s at [%d,%d]"),
+            *EnemyClass->GetName(), Row, Col);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Spawn FAILED at [%d,%d]"), Row, Col);
+    }
+    return NewEnemy;
 }
 
 bool AGridManager::WorldToGrid(FVector WorldPos, int32& OutRow, int32& OutCol)

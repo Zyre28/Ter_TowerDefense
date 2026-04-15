@@ -95,12 +95,30 @@ void AMC::SpawnPlant(const FInputActionValue& Value)
 
 	switch (Key)
 	{
-	case 0:
-		SpawnPlantInGrid(APlantProducer::StaticClass());
+	case 1:
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				5.f,
+				FColor::Red,
+				FString::Printf(TEXT("Valid plant key (bullet): %d"), Key)
+			);
+		}
+		SpawnPlantInGrid(PlantBullet);
 		break;
 
-	case 1:
-		SpawnPlantInGrid(APlantBullet::StaticClass());
+	case 2:
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				5.f,
+				FColor::Red,
+				FString::Printf(TEXT("Valid plant key (producer): %d"), Key)
+			);
+		}
+		SpawnPlantInGrid(PlantProducer);
 		break;
 
 	default:

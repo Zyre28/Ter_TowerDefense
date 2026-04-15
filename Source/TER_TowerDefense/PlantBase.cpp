@@ -6,6 +6,7 @@ APlantBase::APlantBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	MeshComponent->SetCollisionProfileName(TEXT("PlantPreset"));
 	RootComponent = MeshComponent;
 }
 

@@ -1,5 +1,7 @@
 ﻿#include "PlantBullet.h"
 
+#include "ProjectileBullet.h"
+
 APlantBullet::APlantBullet()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -21,10 +23,28 @@ void APlantBullet::Tick(float DeltaTime)
 
 void APlantBullet::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlantProducer [%d,%d] produced %d resources"),
-		GridRow, GridCol, FireAmount);
+	if (!BulletClass) return;
 
-	// Debug : flash cyan each Fire
-	DrawDebugSphere(GetWorld(), GetActorLocation(), 6.f, 8,
-		FColor::Cyan, false, 1.f, 0, 1.f);
+	FVector Origin, Extent;
+	MeshComponent->GetLocalBounds(Origin, Extent);
+    
+	FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, Extent.Z);
+	FRotator SpawnRotation = FRotationMatrix::MakeFromX(FVector::RightVector).Rotator();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+
+	AProjectileBullet* Bullet = GetWorld()->SpawnActor<AProjectileBullet>(
+		BulletClass,
+		SpawnLocation,
+		SpawnRotation,
+		SpawnParams
+	);
+
+	if (Bullet)
+	{
+		Bullet->InitDirection(FVector::RightVector);
+		UE_LOG(LogTemp, Warning, TEXT("Plant [%d,%d] fired a bullet of %d damages"),
+			GridRow, GridCol, FireAmount);
+	}
 }

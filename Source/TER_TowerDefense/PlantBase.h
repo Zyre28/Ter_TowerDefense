@@ -1,9 +1,11 @@
 ﻿#pragma once
 
+#include "CoreMinimal.h"
+#include "GameFramework/Pawn.h" 
 #include "PlantBase.generated.h"
 
-UCLASS(Abstract)
-class TER_TOWERDEFENSE_API APlantBase : public AActor
+UCLASS()
+class TER_TOWERDEFENSE_API APlantBase : public APawn
 {
 	GENERATED_BODY()
 

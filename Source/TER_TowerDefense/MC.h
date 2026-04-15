@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "PlantBase.h"
 #include "MC.generated.h"
 
 UCLASS()
@@ -19,21 +20,27 @@ protected:
 	
 
 	// Input 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ActionDeplacer;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ActionSauter;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ActionSpawnPlant_1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ActionSpawnPlant_2;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Plant", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class APlantBase> PlantBullet;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Plant", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class APlantBase> PlantProducer;
+	
 	// GridManager 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid")
 	TObjectPtr<class AGridManager> GridManager;
