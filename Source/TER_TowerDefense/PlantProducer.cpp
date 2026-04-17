@@ -1,5 +1,5 @@
 ﻿#include "PlantProducer.h"
-
+#include "ResourceManager.h"
 APlantProducer::APlantProducer()
 {
 	PrimaryActorTick.bCanEverTick = true;

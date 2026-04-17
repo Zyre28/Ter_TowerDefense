@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EnemyBase.h"
 #include "GameFramework/Actor.h"
-#include "PlantBase.h"
-#include "ResourceManager.h"
 #include "GridManager.generated.h"
+
+class APlantBase;
+class AEnemyBase;
+class AResourceManager;
 
 USTRUCT(BlueprintType)
 struct FGridCell

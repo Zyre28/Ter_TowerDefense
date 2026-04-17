@@ -2,11 +2,24 @@
 #include "Components/SphereComponent.h"
 #include "EnemyBase.generated.h"
 
+class AMC;
+class APlantBase;
+
 UCLASS(Abstract)
 class TER_TOWERDEFENSE_API AEnemyBase : public APawn
 {
 	GENERATED_BODY()
+	
+	float TimeRemaining;
 
+	AMC* MC;
+	APlantBase* Plant;
+	
+protected:
+	
+	bool bIsAttackingPlant = false;
+	bool bIsAttackingMC = false;
+	
 public:
 	AEnemyBase();
 	
@@ -27,6 +40,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
 	float Damage = 10.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats",  meta = (ToolTip = "Time in seconds"))
+	float AttackSpeed = 3.f;
 
 	// Position on grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Grid")
@@ -55,4 +71,12 @@ public:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
+	
+	UFUNCTION()
+	virtual void EndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+		);
 };

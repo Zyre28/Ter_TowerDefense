@@ -3,6 +3,9 @@
 #include "DrawDebugHelpers.h"
 #include "EnemyBase.h"
 #include "Engine/World.h"
+#include "PlantBase.h"
+#include "ResourceManager.h"
+
 
 AGridManager::AGridManager()
 {

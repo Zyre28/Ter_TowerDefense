@@ -17,12 +17,12 @@ class TER_TOWERDEFENSE_API AEnemyBasic : public AEnemyBase
 	virtual void Tick(float DeltaTime) override;
 public:
 	// Interval in secondes between each move
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Producer")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
 	float MoveInterval = 2.f;
 
 	// Move lenght each move
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Producer")
-	int32 MoveAmount = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
+	int32 MoveAmount = 10;
 	
 	UPROPERTY(EditAnywhere)
 	USoundBase* SpawnSound;

@@ -4,10 +4,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "GridManager.h"
 #include "InputActionValue.h"
-#include "PlantBullet.h"
 #include "EngineUtils.h"
-#include "PlantProducer.h"
 #include "UA_Game.h"
+#include "PlantBase.h"
+#include "ResourceManager.h"
 
 AMC::AMC()
 {
@@ -23,8 +23,8 @@ AMC::AMC()
 void AMC::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (UUA_Game* GameInstance = Cast<UUA_Game>(GetGameInstance()))
+	GameInstance = Cast<UUA_Game>(GetGameInstance());
+	if (GameInstance)
 	{
 		GameInstance->SetMC(this);
 	}
@@ -176,7 +176,8 @@ int32 AMC::GetCurrentHealth()
 void AMC::TakeDamage_MC(float DamageAmount)
 {
 	UE_LOG(LogTemp, Warning, TEXT("MC took : %f damages"), DamageAmount);
-	CurrentHealth = (CurrentHealth - (DamageAmount - DamageAmount * Robustness)) > 0 ? (CurrentHealth - (DamageAmount - DamageAmount * Robustness)) : 0;
+	float health = CurrentHealth - (DamageAmount - DamageAmount * Robustness);
+	CurrentHealth = health > 0 ? health : 0;
 	if (CurrentHealth == 0)
 	{
 		OnDeath();
@@ -186,5 +187,23 @@ void AMC::TakeDamage_MC(float DamageAmount)
 void AMC::OnDeath()
 {
 	UE_LOG(LogTemp, Warning, TEXT("MC died"));
-	Destroy();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			5.f,
+			FColor::Red,
+			FString::Printf(TEXT("MC died"))
+		);
+	}
+	bIsDead = true;
+}
+
+AMC::~AMC()
+{
+	if (GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AMC destruction"));
+		GameInstance->UnSetMC();	
+	}
 }

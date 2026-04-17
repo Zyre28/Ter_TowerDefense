@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UA_Game.h"
 #include "GameFramework/Actor.h"
 #include "LevelManager.generated.h"
 
@@ -11,12 +12,20 @@ class TER_TOWERDEFENSE_API ALevelManager : public AActor
 {
 	GENERATED_BODY()
 	
+	TObjectPtr<class AMC> MC;
+	
+	int32 ActualLevel;
+	UUA_Game* GameInstance;
+
 public:	
 	// Sets default values for this actor's properties
 	ALevelManager();
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Level")
-	TObjectPtr<class AMC> MC;
+	virtual ~ALevelManager() override;
 	
+	void SetMC(class AMC* MC);
+
+	void SetActualLevel(int32 ActualLevel);
+	int32 GetActualLevel();;
 	
 protected:
 	// Called when the game starts or when spawned

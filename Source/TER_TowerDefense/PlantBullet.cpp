@@ -1,5 +1,4 @@
 ﻿#include "PlantBullet.h"
-
 #include "ProjectileBullet.h"
 
 APlantBullet::APlantBullet()
@@ -26,7 +25,7 @@ void APlantBullet::Fire()
 	if (!BulletClass) return;
 
 	FVector Origin, Extent;
-	MeshComponent->GetLocalBounds(Origin, Extent);
+	Mesh->GetLocalBounds(Origin, Extent);
     
 	FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, Extent.Z);
 	FRotator SpawnRotation = FRotationMatrix::MakeFromX(FVector::RightVector).Rotator();

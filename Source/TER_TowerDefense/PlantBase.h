@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "ResourceManager.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/Pawn.h" 
 #include "PlantBase.generated.h"
+
+class AResourceManager;
 
 UCLASS()
 class TER_TOWERDEFENSE_API APlantBase : public APawn
@@ -42,8 +44,11 @@ public:
 	int32 GridCol = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Plant")
-	UStaticMeshComponent* MeshComponent;
+	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	USphereComponent* Sphere;
+	
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Plant")

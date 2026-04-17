@@ -20,8 +20,11 @@ void AEnemyBasic::Tick(float DeltaTime)
 
 void AEnemyBasic::Move()
 {
-	FVector NewLocation = GetActorLocation() + FVector(0.f, -MoveAmount, 0.f);
-	SetActorLocation(NewLocation);
+	if (!(bIsAttackingMC || bIsAttackingPlant))
+	{
+		FVector NewLocation = GetActorLocation() + FVector(0.f, -MoveAmount, 0.f);
+		SetActorLocation(NewLocation);
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy moved to %s"), *NewLocation.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Enemy moved to %s"), *NewLocation.ToString());
+	}
 }

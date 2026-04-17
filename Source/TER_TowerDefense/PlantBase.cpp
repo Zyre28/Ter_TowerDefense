@@ -1,13 +1,18 @@
-﻿#include "D:\Ter\TER_TowerDefense\Intermediate\Build\Win64\x64\TER_TowerDefenseEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
-#include "PlantBase.h"
+﻿#include "PlantBase.h"
 
 APlantBase::APlantBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	MeshComponent->SetCollisionProfileName(TEXT("PlantPreset"));
-	RootComponent = MeshComponent;
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	RootComponent = Mesh;
+	
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	Sphere->SetupAttachment(RootComponent);
+	Sphere->InitSphereRadius(70.f);
+	Sphere->SetCollisionProfileName(TEXT("PlantPreset"));
+	Sphere->SetGenerateOverlapEvents(true);
+	
 	ActualCost = InitialCost;
 }
 

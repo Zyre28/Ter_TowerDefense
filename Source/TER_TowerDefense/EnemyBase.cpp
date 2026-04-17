@@ -1,6 +1,6 @@
 ﻿#include "D:\Ter\TER_TowerDefense\Intermediate\Build\Win64\x64\TER_TowerDefenseEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
 #include "EnemyBase.h"
-
+#include "PlantBase.h"
 #include "MC.h"
 
 AEnemyBase::AEnemyBase()
@@ -12,11 +12,13 @@ AEnemyBase::AEnemyBase()
 	
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	Sphere->SetupAttachment(RootComponent);
-	Sphere->InitSphereRadius(25.f);
+	Sphere->InitSphereRadius(70.f);
 	Sphere->SetCollisionProfileName(TEXT("ProjectilePreset"));
 	Sphere->SetGenerateOverlapEvents(true);
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AEnemyBase::EndOverlap);
 }
+
 void AEnemyBase::InitOnGrid(int32 Row, int32 Col, FVector WorldCenter)
 {
 	GridRow = Row;
@@ -57,6 +59,24 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (bIsAttackingMC || (bIsAttackingMC && bIsAttackingPlant))
+	{
+		TimeRemaining -= DeltaTime;
+		if (TimeRemaining <= 0.f)
+		{
+			MC->TakeDamage_MC(Damage);
+			TimeRemaining = AttackSpeed;
+		}
+	}
+	else if (bIsAttackingPlant)
+	{
+		TimeRemaining -= DeltaTime;
+		if (TimeRemaining <= 0.f)
+		{
+			Plant->TakeDamage_Plant(Damage);
+			TimeRemaining = AttackSpeed;
+		}
+	}
 }
 
 void AEnemyBase::OnOverlap(
@@ -71,10 +91,52 @@ void AEnemyBase::OnOverlap(
 	if (!OtherActor || OtherActor == this || OtherActor == GetOwner()) return;
 	UE_LOG(LogTemp, Warning, TEXT("Enemy Overlapped"));
 
-	AMC* MC = Cast<AMC>(OtherActor);
-	if (MC)
+	AMC* _MC = Cast<AMC>(OtherActor);
+	
+	if (_MC)
 	{
-		MC->TakeDamage_MC(Damage);
-		_sleep(10);
+		UE_LOG(LogTemp, Warning, TEXT("Enemy TargetMC"));
+		bIsAttackingMC = true;
+		TimeRemaining = 0;
+		this->MC = _MC;
+	}
+	
+	APlantBase* _Plant = Cast<APlantBase>(OtherActor);
+	
+	if (_Plant)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy TargetPlant"));
+		bIsAttackingPlant = true;
+		TimeRemaining = 0;
+		this->Plant = _Plant;
+	}
+}
+
+void AEnemyBase::EndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Enemy END Overlapped"));
+	if (!OtherActor || OtherActor == this || OtherActor == GetOwner()) return;
+	UE_LOG(LogTemp, Warning, TEXT("Enemy END Overlapped"));
+
+	AMC* _MC = Cast<AMC>(OtherActor);
+	
+	if (_MC != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy UnTargetMC"));
+		bIsAttackingMC = false;
+		this->MC = nullptr;
+	}
+	
+	APlantBase* _Plant = Cast<APlantBase>(OtherActor);
+	
+	if (_Plant != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy UnTargetPlant"));
+		bIsAttackingPlant = false;
+		this->Plant = nullptr;
 	}
 }

@@ -2,19 +2,38 @@
 
 
 #include "UA_Game.h"
+#include "LevelManager.h"
 
-void UUA_Game::SetLevelManager(ALevelManager* newLevelManager)
+void UUA_Game::SetLevelManager(ALevelManager* NewLevelManager)
 {
-	if (newLevelManager)
+	if (NewLevelManager)
 	{
-		LevelManager = newLevelManager;
+		LevelManager = NewLevelManager;
+		if (MC)
+		{
+			LevelManager->SetMC(MC);
+		}
 	}
 }
 
-void UUA_Game::SetMC(AMC* newMC)
+void UUA_Game::SetMC(AMC* NewMC)
 {
-	if (newMC)
+	if (NewMC)
 	{
-		MC = newMC;
+		MC = NewMC;
+		if (LevelManager)
+		{
+			LevelManager->SetMC(MC);
+		}
 	}
+}
+
+void UUA_Game::UnSetLevelManager()
+{
+	LevelManager = nullptr;
+}
+
+void UUA_Game::UnSetMC()
+{
+	MC = nullptr;
 }

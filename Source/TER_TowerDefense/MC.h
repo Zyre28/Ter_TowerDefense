@@ -4,17 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "PlantBase.h"
-#include "ResourceManager.h"
+#include "UA_Game.h"
 #include "MC.generated.h"
+
+class AResourceManager;
+class APlantBase;
 
 UCLASS()
 class TER_TOWERDEFENSE_API AMC : public ACharacter
 {
 	GENERATED_BODY()
+	
+	bool bIsDead = false;
 
 public:
+	
 	AMC();
+	
+	virtual ~AMC() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -68,10 +75,12 @@ public:
 	
 	void TakeDamage_MC(float DamageAmount);
 	void OnDeath();
+	bool getIsDead() { return bIsDead; }
 
 private :
 	void Move(const struct FInputActionValue& Value);
 	void Jump_();
 	void SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass);
 	void SpawnPlant(const struct FInputActionValue& Value);
+	UUA_Game* GameInstance;
 };

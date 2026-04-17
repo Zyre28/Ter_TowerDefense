@@ -18,22 +18,29 @@ ALevelManager::ALevelManager()
 void ALevelManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (UUA_Game* GameInstance = Cast<UUA_Game>(GetGameInstance()))
+	GameInstance = Cast<UUA_Game>(GetGameInstance());
+	if (GameInstance)
 	{
 		GameInstance->SetLevelManager(this);
 	}
-	
-	MC = Cast<AMC>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+}
 
-	if (MC)
+void ALevelManager::SetMC(AMC* _MC)
+{
+	if (_MC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Found MC: %s"), *MC->GetName());
+		this->MC = MC;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("MC NOT FOUND"));
-	}
+}
+
+void ALevelManager::SetActualLevel(int32 _ActualLevel)
+{
+	this->ActualLevel = _ActualLevel;
+}
+
+int32 ALevelManager::GetActualLevel()
+{
+	return ActualLevel;
 }
 
 // Called every frame
@@ -43,3 +50,11 @@ void ALevelManager::Tick(float DeltaTime)
 
 }
 
+ALevelManager::~ALevelManager() 
+{
+	if (GameInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ALevelManager destruction"));
+		GameInstance->UnSetLevelManager();	
+	}
+}
