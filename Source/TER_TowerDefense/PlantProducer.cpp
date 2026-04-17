@@ -21,6 +21,13 @@ void APlantProducer::Tick(float DeltaTime)
 
 void APlantProducer::Produce()
 {
+	if (!ResourceManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlantProducer [%d,%d]: ResourceManager failed"),
+			GridRow, GridCol);
+		return;
+	}
+	ResourceManager->AddResources(ProductionAmount, ProducedResourceType);
 	UE_LOG(LogTemp, Warning, TEXT("PlantProducer [%d,%d] produced %d resources"),
 		GridRow, GridCol, ProductionAmount);
 

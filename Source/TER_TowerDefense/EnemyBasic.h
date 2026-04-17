@@ -24,6 +24,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Producer")
 	int32 MoveAmount = 5;
 	
+	UPROPERTY(EditAnywhere)
+	USoundBase* SpawnSound;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* GettingHitSound;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* HitSound;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* DeathSound;
+	
 private:
 	float TimeSinceMove = 0.f;
 

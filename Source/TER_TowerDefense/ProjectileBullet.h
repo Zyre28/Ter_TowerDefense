@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/SphereComponent.h"
 #include "ProjectileBullet.generated.h"
-
 UCLASS()
 class TER_TOWERDEFENSE_API AProjectileBullet : public AActor
 {
@@ -21,12 +21,13 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void OnHit(
-		UPrimitiveComponent* HitComp,
+	virtual void OnOverlap(
+		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
-		FVector NormalImpulse,
-		const FHitResult& Hit
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
 	);
 
 public:	
@@ -35,11 +36,15 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int32 BaseRange = 4000;
+	float Damage;
 	FVector StartLocation;
 	
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
-
+	
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* Sphere;
+	
 	UPROPERTY(VisibleAnywhere)
 	UProjectileMovementComponent* ProjectileMovement;
 	

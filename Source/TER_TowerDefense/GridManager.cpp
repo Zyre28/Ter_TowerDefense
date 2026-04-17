@@ -99,14 +99,12 @@ APlantBase* AGridManager::SpawnPlant(TSubclassOf<APlantBase> PlantClass, int32 R
 {
     UE_LOG(LogTemp, Warning, TEXT("SpawnPlant called [%d,%d]"), Row, Col);
     if (!IsValidCell(Row, Col) || !PlantClass)
-        return nullptr;
-
-    FGridCell& Cell = Cells[Row * NumCols + Col];
-    if (!Cell.IsEmpty())
     {
-        UE_LOG(LogTemp, Warning, TEXT("Cell [%d,%d] already occupied"), Row, Col);
+        UE_LOG(LogTemp, Warning, TEXT("Cell already used [%d,%d]"), Row, Col);
         return nullptr;
     }
+
+    FGridCell& Cell = Cells[Row * NumCols + Col];
 
     FVector WorldCenter = Cell.GetWorldCenter(GridOrigin, CellSizeX, CellSizeY);
     FActorSpawnParameters Params;
@@ -123,6 +121,8 @@ APlantBase* AGridManager::SpawnPlant(TSubclassOf<APlantBase> PlantClass, int32 R
 
         UE_LOG(LogTemp, Warning, TEXT("Spawned %s at [%d,%d]"),
             *PlantClass->GetName(), Row, Col);
+        
+        NewPlant->SetResourceManager(ResourceManager);
     }
     else
     {

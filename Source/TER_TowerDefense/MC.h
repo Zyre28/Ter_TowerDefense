@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlantBase.h"
+#include "ResourceManager.h"
 #include "MC.generated.h"
 
 UCLASS()
@@ -42,13 +43,31 @@ protected:
 	TSubclassOf<class APlantBase> PlantProducer;
 	
 	// GridManager 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Level|Grid")
 	TObjectPtr<class AGridManager> GridManager;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Level|Resources")
+	TObjectPtr<class AResourceManager> ResourceManager;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player|Stats")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Stats")
+	float CurrentHealth = 100.f;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player|Stats")
+	float Robustness = 0.f;
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Player|Stats")
+	int32 GetCurrentHealth();
+	
+	void TakeDamage_MC(float DamageAmount);
+	void OnDeath();
 
 private :
 	void Move(const struct FInputActionValue& Value);

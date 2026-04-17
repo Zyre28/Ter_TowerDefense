@@ -18,11 +18,12 @@ public:
 	// Quantity produced each production
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Plant|Producer")
 	int32 ProductionAmount = 25;
-
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Producer")
+	int32 ProducedResourceType = 0;
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	float TimeSinceLastProduction = 0.f;
-
 	void Produce();
 };

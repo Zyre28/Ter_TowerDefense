@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyBase.h"
 #include "GameFramework/Actor.h"
 #include "PlantBase.h"
+#include "ResourceManager.h"
 #include "GridManager.generated.h"
 
 USTRUCT(BlueprintType)
@@ -55,6 +57,9 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid")
 	UStaticMeshComponent* VisualMesh;
+	
+	UPROPERTY(EditInstanceOnly, Category = "Grid")
+	AResourceManager* ResourceManager;
 
 	UPROPERTY()
 	TArray<FGridCell> Cells;
@@ -67,14 +72,19 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	bool PlacePlant(class APlantBase* Plant, int32 Row, int32 Col);
 	void RemovePlant(int32 Row, int32 Col);
 	bool IsValidCell(int32 Row, int32 Col) const;
+	
 	UFUNCTION(BlueprintCallable, Category = "Grid")
 	APlantBase* SpawnPlant(TSubclassOf<APlantBase> PlantClass, int32 Row, int32 Col);
+	
 	UFUNCTION(BlueprintCallable, Category = "Grid")
 	AEnemyBase* SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass, int32 Row, int32 Col);
+	
 	UFUNCTION(BlueprintCallable, Category="Grid")
 	FVector SnapToGrid(FVector WorldPos);
+	
 	UFUNCTION(BlueprintCallable, Category="Grid")
 	bool WorldToGrid(FVector WorldPos, int32& OutRow, int32& OutCol);
+	
 #if WITH_EDITOR
 	virtual void OnConstruction(const FTransform& Transform) override;
 #endif

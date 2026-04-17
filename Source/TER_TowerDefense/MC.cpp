@@ -7,6 +7,7 @@
 #include "PlantBullet.h"
 #include "EngineUtils.h"
 #include "PlantProducer.h"
+#include "UA_Game.h"
 
 AMC::AMC()
 {
@@ -22,6 +23,12 @@ AMC::AMC()
 void AMC::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (UUA_Game* GameInstance = Cast<UUA_Game>(GetGameInstance()))
+	{
+		GameInstance->SetMC(this);
+	}
+	
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		// Register mapping context Enhanced Input
@@ -40,6 +47,11 @@ void AMC::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Found GridManager: %s"), *GridManager->GetName());
 			break;
 		}
+	}
+	for (TActorIterator<AResourceManager> It(GetWorld()); It; ++It)
+	{
+		ResourceManager = *It;
+		break;
 	}
 }
 
@@ -79,10 +91,29 @@ void AMC::Jump_()
 }
 
 void AMC::SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass) {
+	if (!PlantClass || !GridManager || !ResourceManager) return;
+	
+	const APlantBase* DefaultPlant = PlantClass.GetDefaultObject();
+	
+	if (!DefaultPlant) return;
+	
 	int32 col = 0; int32 row = 0;
 	if (GridManager->WorldToGrid(GetActorLocation(), row, col)) {
 		UE_LOG(LogTemp, Warning, TEXT("Player is on grid cell [%d,%d]"), row, col);
-		GridManager->SpawnPlant(PlantClass, row, col);
+		FGridCell* Cell = GridManager->GetCellFromWorld(GetActorLocation());
+		if (!Cell || !Cell->IsEmpty())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Case [%d,%d] déjà occupée"), row, col);
+			return;
+		}
+		if (ResourceManager->SpendResources(DefaultPlant->ActualCost, DefaultPlant->TypeResource))
+		{
+			GridManager->SpawnPlant(PlantClass, row, col);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("You are poor : %d"), ResourceManager->GetResource(DefaultPlant->TypeResource));
+		}
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Player is NOT on a valid grid cell"));
 	}
@@ -135,4 +166,25 @@ void AMC::SpawnPlant(const FInputActionValue& Value)
 		}
 		break;
 	}
+}
+
+int32 AMC::GetCurrentHealth()
+{
+	return CurrentHealth;
+}
+
+void AMC::TakeDamage_MC(float DamageAmount)
+{
+	UE_LOG(LogTemp, Warning, TEXT("MC took : %f damages"), DamageAmount);
+	CurrentHealth = (CurrentHealth - (DamageAmount - DamageAmount * Robustness)) > 0 ? (CurrentHealth - (DamageAmount - DamageAmount * Robustness)) : 0;
+	if (CurrentHealth == 0)
+	{
+		OnDeath();
+	}
+}
+
+void AMC::OnDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("MC died"));
+	Destroy();
 }

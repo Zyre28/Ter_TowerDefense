@@ -3,6 +3,8 @@
 
 #include "EnemyBasic.h"
 
+#include "Kismet/GameplayStatics.h"
+
 void AEnemyBasic::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

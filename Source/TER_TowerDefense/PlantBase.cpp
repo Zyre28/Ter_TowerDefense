@@ -8,6 +8,7 @@ APlantBase::APlantBase()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComponent->SetCollisionProfileName(TEXT("PlantPreset"));
 	RootComponent = MeshComponent;
+	ActualCost = InitialCost;
 }
 
 void APlantBase::BeginPlay()

@@ -2,6 +2,8 @@
 
 #include "EngineUtils.h"
 #include "ProjectileBullet.h"
+
+#include "EnemyBase.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -12,16 +14,20 @@ AProjectileBullet::AProjectileBullet()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetSimulatePhysics(false);
 	RootComponent = Mesh;
 	
-	Mesh->SetNotifyRigidBodyCollision(true);
-	Mesh->SetGenerateOverlapEvents(true);
-	Mesh->SetSimulatePhysics(false);
-	Mesh->SetCollisionProfileName(TEXT("ProjectilePreset"));
-	Mesh->OnComponentHit.AddDynamic(this, &AProjectileBullet::OnHit);
-	
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	Sphere->SetupAttachment(RootComponent);
+	Sphere->InitSphereRadius(25.f);
+	Sphere->SetCollisionProfileName(TEXT("ProjectilePreset"));
+	Sphere->SetGenerateOverlapEvents(true);
+	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBullet::OnOverlap);
+
+
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->UpdatedComponent = Mesh;
+	ProjectileMovement->bSweepCollision = true;
 	ProjectileMovement->InitialSpeed = 500.f;
 	ProjectileMovement->MaxSpeed = 500.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
@@ -33,6 +39,7 @@ AProjectileBullet::AProjectileBullet()
 void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("Overlap enabled for Projectile: %d"), Mesh->GetGenerateOverlapEvents());
 	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *ProjectileMovement->Velocity.ToString());
 	StartLocation = GetActorLocation();
 	if (SpawnSound)
@@ -42,21 +49,27 @@ void AProjectileBullet::BeginPlay()
 	
 }
 
-void AProjectileBullet::OnHit(
-	UPrimitiveComponent* HitComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse,
-	const FHitResult& Hit)
+void AProjectileBullet::OnOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult)
 {	
-	UE_LOG(LogTemp, Warning, TEXT("Bullet hit: %s"), *OtherActor->GetName());
-	if (OtherActor && OtherActor != this && OtherActor != GetOwner())
+	UE_LOG(LogTemp, Warning, TEXT("OnOverlap Projectile CALLED with"));
+	if (!OtherActor || OtherActor == this || OtherActor == GetOwner()) return;
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped : %s"), *OtherActor->GetName());
+	
+	AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
+	if (Enemy)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped an Enemy: %s"), *OtherActor->GetName());
+		Enemy->TakeDamage_Enemy(Damage);
 		if (HitSound)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, HitSound, Hit.ImpactPoint);
+			UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
 		}
-
 		Destroy();
 	}
 }
