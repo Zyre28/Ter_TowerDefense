@@ -3,6 +3,7 @@
 
 #include "UA_Game.h"
 #include "LevelManager.h"
+#include "MC.h"
 
 void UUA_Game::SetLevelManager(ALevelManager* NewLevelManager)
 {

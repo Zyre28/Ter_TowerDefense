@@ -58,3 +58,8 @@ ALevelManager::~ALevelManager()
 		GameInstance->UnSetLevelManager();	
 	}
 }
+
+void ALevelManager::MakeLevel(ERoomType Room)
+{
+	return;
+}

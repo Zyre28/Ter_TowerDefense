@@ -59,6 +59,15 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	TimeSinceMove += DeltaTime;
+
+	if (TimeSinceMove >= MoveInterval)
+	{
+		TimeSinceMove = 0.f;
+		Move();
+	}
+	
 	if (bIsAttackingMC || (bIsAttackingMC && bIsAttackingPlant))
 	{
 		TimeRemaining -= DeltaTime;
@@ -138,5 +147,16 @@ void AEnemyBase::EndOverlap(
 		UE_LOG(LogTemp, Warning, TEXT("Enemy UnTargetPlant"));
 		bIsAttackingPlant = false;
 		this->Plant = nullptr;
+	}
+}
+
+void AEnemyBase::Move()
+{
+	if (!(bIsAttackingMC || bIsAttackingPlant))
+	{
+		FVector NewLocation = GetActorLocation() + FVector(0.f, -MoveAmount, 0.f);
+		SetActorLocation(NewLocation);
+
+		UE_LOG(LogTemp, Warning, TEXT("Enemy moved to %s"), *NewLocation.ToString());
 	}
 }

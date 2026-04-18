@@ -43,7 +43,15 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats",  meta = (ToolTip = "Time in seconds"))
 	float AttackSpeed = 3.f;
+	
+	// Interval in secondes between each move
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
+	float MoveInterval;
 
+	// Move lenght each move
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
+	int32 MoveAmount;
+	
 	// Position on grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Grid")
 	int32 GridRow = 0;
@@ -79,4 +87,10 @@ public:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 		);
+	
+protected:
+		
+	float TimeSinceMove = 0.f;
+
+	void Move();
 };

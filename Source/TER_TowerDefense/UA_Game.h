@@ -7,6 +7,7 @@
 #include "UA_Game.generated.h"
 
 class ALevelManager;
+class AMC;
 
 UCLASS()
 class TER_TOWERDEFENSE_API UUA_Game : public UGameInstance
@@ -20,6 +21,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Level")
 	int32 NbLevels;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Level")
+	int32 ActualDifficulty;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|MC")
 	AMC* MC;

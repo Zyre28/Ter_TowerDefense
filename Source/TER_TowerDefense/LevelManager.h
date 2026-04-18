@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "UA_Game.h"
 #include "GameFramework/Actor.h"
+#include "RoomType.h"
 #include "LevelManager.generated.h"
+class AEnemyBase;
 
 UCLASS()
 class TER_TOWERDEFENSE_API ALevelManager : public AActor
@@ -15,7 +17,12 @@ class TER_TOWERDEFENSE_API ALevelManager : public AActor
 	TObjectPtr<class AMC> MC;
 	
 	int32 ActualLevel;
+	
 	UUA_Game* GameInstance;
+	
+	TArray<AEnemyBase*> EnemyList;
+	
+	int8 MaxEnemies;
 
 public:	
 	// Sets default values for this actor's properties
@@ -25,7 +32,9 @@ public:
 	void SetMC(class AMC* MC);
 
 	void SetActualLevel(int32 ActualLevel);
-	int32 GetActualLevel();;
+	int32 GetActualLevel();
+	
+	void MakeLevel(ERoomType Room);
 	
 protected:
 	// Called when the game starts or when spawned
