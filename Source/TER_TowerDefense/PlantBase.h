@@ -7,6 +7,8 @@
 
 class AResourceManager;
 
+DECLARE_DELEGATE_TwoParams(FOnPlantDeath, int32, int32);
+
 UCLASS()
 class TER_TOWERDEFENSE_API APlantBase : public APawn
 {
@@ -62,4 +64,5 @@ public:
 	AResourceManager* ResourceManager;
 	void SetResourceManager(AResourceManager* RM) { ResourceManager = RM; }
 
+	FOnPlantDeath OnDeathDelegate;
 };

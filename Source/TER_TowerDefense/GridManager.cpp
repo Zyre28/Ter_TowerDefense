@@ -121,6 +121,8 @@ APlantBase* AGridManager::SpawnPlant(TSubclassOf<APlantBase> PlantClass, int32 R
     {   
         NewPlant->InitOnGrid(Row, Col, WorldCenter);
         Cell.OccupyingPlant = NewPlant;
+        NewPlant->OnDeathDelegate.BindUObject(this, &AGridManager::RemovePlant);
+
 
         UE_LOG(LogTemp, Warning, TEXT("Spawned %s at [%d,%d]"),
             *PlantClass->GetName(), Row, Col);
@@ -167,6 +169,12 @@ AEnemyBase* AGridManager::SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass, int32 R
         UE_LOG(LogTemp, Error, TEXT("Spawn FAILED at [%d,%d]"), Row, Col);
     }
     return NewEnemy;
+}
+
+AEnemyBase* AGridManager::SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass)
+{
+    int32 Col = FMath::RandRange(0, NumCols - 1);
+    return SpawnEnemy(EnemyClass, 7, Col);
 }
 
 bool AGridManager::WorldToGrid(FVector WorldPos, int32& OutRow, int32& OutCol)

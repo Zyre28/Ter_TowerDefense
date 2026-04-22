@@ -50,5 +50,6 @@ void APlantBase::TakeDamage_Plant(float Amount)
 void APlantBase::OnDeath()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Plant [%d,%d] died"), GridRow, GridCol);
+	OnDeathDelegate.ExecuteIfBound(GridRow, GridCol);
 	Destroy();
 }

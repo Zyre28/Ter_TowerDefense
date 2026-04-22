@@ -199,6 +199,11 @@ void AMC::OnDeath()
 	bIsDead = true;
 }
 
+TObjectPtr<AGridManager> AMC::GetGridManager()
+{
+	return GridManager;
+}
+
 AMC::~AMC()
 {
 	if (GameInstance)

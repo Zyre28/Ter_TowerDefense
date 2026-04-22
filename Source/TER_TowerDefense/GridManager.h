@@ -79,6 +79,7 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	
 	UFUNCTION(BlueprintCallable, Category = "Grid")
 	AEnemyBase* SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass, int32 Row, int32 Col);
+	AEnemyBase* SpawnEnemy(TSubclassOf<AEnemyBase> EnemyClass);
 	
 	UFUNCTION(BlueprintCallable, Category="Grid")
 	FVector SnapToGrid(FVector WorldPos);

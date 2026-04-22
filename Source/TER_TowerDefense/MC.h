@@ -76,6 +76,8 @@ public:
 	void TakeDamage_MC(float DamageAmount);
 	void OnDeath();
 	bool getIsDead() { return bIsDead; }
+	
+	TObjectPtr<AGridManager> GetGridManager();
 
 private :
 	void Move(const struct FInputActionValue& Value);

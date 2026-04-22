@@ -9,6 +9,7 @@ AEnemyBasic::AEnemyBasic()
 {
 	this->MoveInterval = 2.0f;
 	this->MoveAmount = 3;
+	SetRank(1);
 }
 
 void AEnemyBasic::Tick(float DeltaTime)

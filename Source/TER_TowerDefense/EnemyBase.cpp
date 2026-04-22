@@ -45,6 +45,7 @@ void AEnemyBase::TakeDamage_Enemy(float DamageAmount)
 void AEnemyBase::OnDeath()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Enemy [%d,%d] died"), GridRow, GridCol);
+	OnDeathDelegate.ExecuteIfBound();
 	Destroy();
 }
 
@@ -159,4 +160,19 @@ void AEnemyBase::Move()
 
 		UE_LOG(LogTemp, Warning, TEXT("Enemy moved to %s"), *NewLocation.ToString());
 	}
+}
+
+void AEnemyBase::SetRank(int32 _Rank)
+{
+	Rank = _Rank;
+}
+
+void AEnemyBase::SetId(int32 _Id)
+{
+	Id = _Id;
+}
+
+int32 AEnemyBase::GetId()
+{
+	return Id;
 }

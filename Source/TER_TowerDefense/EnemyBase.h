@@ -5,6 +5,8 @@
 class AMC;
 class APlantBase;
 
+DECLARE_DELEGATE(FOnEnemyDeath);
+
 UCLASS(Abstract)
 class TER_TOWERDEFENSE_API AEnemyBase : public APawn
 {
@@ -14,12 +16,13 @@ class TER_TOWERDEFENSE_API AEnemyBase : public APawn
 
 	AMC* MC;
 	APlantBase* Plant;
-	
+
 protected:
 	
 	bool bIsAttackingPlant = false;
 	bool bIsAttackingMC = false;
-	
+	int32 Rank;
+	int32 Id;
 public:
 	AEnemyBase();
 	
@@ -70,6 +73,12 @@ public:
 
 	void InitOnGrid(int32 Row, int32 Col, FVector WorldCenter);
 	
+	void SetRank(int32 _Rank);
+	
+	void SetId(int32 _Rank);
+	int32 GetId();
+
+	
 	UFUNCTION()
 	virtual void OnOverlap(
 		UPrimitiveComponent* OverlappedComp,
@@ -87,6 +96,8 @@ public:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 		);
+	
+	FOnEnemyDeath OnDeathDelegate;
 	
 protected:
 		

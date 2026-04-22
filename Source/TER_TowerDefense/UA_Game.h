@@ -23,7 +23,7 @@ public:
 	int32 NbLevels;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Level")
-	int32 ActualDifficulty;
+	int32 ActualDifficulty = 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|MC")
 	AMC* MC;
@@ -39,4 +39,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Game|MC")
 	void UnSetMC();
+	
+	int32 GetActualDifficulty();
 };
