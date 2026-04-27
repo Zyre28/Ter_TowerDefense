@@ -21,7 +21,6 @@ protected:
 	
 	bool bIsAttackingPlant = false;
 	bool bIsAttackingMC = false;
-	int32 Rank;
 	int32 Id;
 public:
 	AEnemyBase();
@@ -49,11 +48,11 @@ public:
 	
 	// Interval in secondes between each move
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
-	float MoveInterval;
+	float MoveInterval = 0.5f;
 
 	// Move lenght each move
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Stats")
-	int32 MoveAmount;
+	int32 MoveAmount = 7;
 	
 	// Position on grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Grid")
@@ -72,8 +71,6 @@ public:
 	virtual void OnDeath();
 
 	void InitOnGrid(int32 Row, int32 Col, FVector WorldCenter);
-	
-	void SetRank(int32 _Rank);
 	
 	void SetId(int32 _Rank);
 	int32 GetId();
@@ -98,6 +95,18 @@ public:
 		);
 	
 	FOnEnemyDeath OnDeathDelegate;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* SpawnSound;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* GettingHitSound;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* HitSound;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* DeathSound;
 	
 protected:
 		

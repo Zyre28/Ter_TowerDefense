@@ -5,7 +5,7 @@
 #include "Engine/World.h"
 #include "PlantBase.h"
 #include "ResourceManager.h"
-
+#include "Blueprint/UserWidget.h"
 
 AGridManager::AGridManager()
 {
@@ -13,6 +13,11 @@ AGridManager::AGridManager()
 
     VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
     RootComponent = VisualMesh;
+    
+    LoseTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("LoseTrigger"));
+    //Debugg Only WIP
+    LoseTrigger->SetupAttachment(RootComponent);
+    LoseTrigger->SetGenerateOverlapEvents(true);
 }
 
 void AGridManager::BeginPlay()
@@ -50,6 +55,18 @@ void AGridManager::BeginPlay()
             FVector(CellSizeX * 0.5f, CellSizeY * 0.5f, 1.f),
             FColor::Green, false, 30.f, 0, 0.3f);
     }
+    
+    FVector LoseTriggerPos = GridOrigin + FVector(
+        (NumCols * CellSizeX) * 0.5f,
+        -CellSizeY * 0.5f - 50,
+        0.f
+    );
+    
+    LoseTrigger->SetWorldLocation(LoseTriggerPos);
+    LoseTrigger->SetBoxExtent(FVector(NumCols * CellSizeX * 0.5f, CellSizeY * 0.5f, 50.f));
+    LoseTrigger->OnComponentBeginOverlap.AddDynamic(this, &AGridManager::OnEnemyReachedEnd);
+    LoseTrigger->SetHiddenInGame(false);
+    LoseTrigger->ShapeColor = FColor::Red;
 }
 
 bool AGridManager::IsValidCell(int32 Row, int32 Col) const
@@ -219,3 +236,24 @@ void AGridManager::OnConstruction(const FTransform& Transform)
     }
 }
 #endif
+
+void AGridManager::OnEnemyReachedEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+    bool bFromSweep, const FHitResult& SweepResult)
+{
+    AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
+    if (!Enemy) return;
+
+    UE_LOG(LogTemp, Warning, TEXT("GameOver"));
+    
+    APlayerController* PC = GetWorld()->GetFirstPlayerController();
+    if (PC && GameOverWidgetClass)
+    {
+        UUserWidget* Widget = CreateWidget<UUserWidget>(PC, GameOverWidgetClass);
+        if (Widget)
+        {
+            Widget->AddToViewport();
+            PC->SetPause(true);
+        }
+    }
+}

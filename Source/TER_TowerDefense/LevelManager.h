@@ -6,39 +6,90 @@
 #include "UA_Game.h"
 #include "GameFramework/Actor.h"
 #include "RoomType.h"
+#include "EnemyType.h" 
 #include "LevelManager.generated.h"
+
 class AEnemyBase;
+class AMC;
+
+USTRUCT()
+struct FEnemyWave
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<EEnemyType> EnemyList;
+	TArray<EEnemyType> EndOfWaves;
+	TArray<EEnemyType> EnemyPool;
+	int32 MaxEnemiesWave;
+	int32 StillEnemiesWave;
+	int32 StillEndOfWaves;
+};
 
 UCLASS()
 class TER_TOWERDEFENSE_API ALevelManager : public AActor
 {
 	GENERATED_BODY()
 	
-	TObjectPtr<class AMC> MC;
+	TObjectPtr<AMC> MC;
 	
-	int32 ActualLevel;
+	int32 ActualLevel = 1; //WIP
 	
 	UUA_Game* GameInstance;
 	
-	TArray<AEnemyBase*> EnemyList;
+	TArray<FEnemyWave> Waves;
 	
-	int8 MaxEnemies;
-
+	TArray<FEnemyTypeData> AllEnemyTypes = {
+		{ EEnemyType::Basic, 1 },
+		{ EEnemyType::Rapid, 2 },
+		{ EEnemyType::Cone, 2 },
+		{ EEnemyType::Bucket, 3 },
+		{ EEnemyType::Tank, 4 },
+	};
+	
+	int32 MaxPoolSize = 4;
+	float MaxOnScreen = 1.0f;
+	float CurrentOnScreen = 0.0f;
+	
+	TSubclassOf<AEnemyBase> GetEnemyClassFromType(EEnemyType Type);
+	
 public:	
 	// Sets default values for this actor's properties
 	ALevelManager();
-	virtual ~ALevelManager() override;
 	
 	void SetMC(class AMC* MC);
 
 	void SetActualLevel(int32 ActualLevel);
 	int32 GetActualLevel();
 	
-	void MakeLevel(ERoomType Room);
+	void SelectionLevel(ERoomType Room);
 	
+	void MakeLevel1();
+	
+	int8 MaxEnemies;
+	int8 StillEnemies;
+	int8 NbWaves = 4;
+	float CurrentWaveIndex = 0;
+	float CurrentEnemyIndex = 0;
+	bool bEndOfWave = false;
+	
+	FTimerHandle SpawnTimerHandle;
+	float MaxSpawnDelay = 4.0f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Level|Enemies")
+	TMap<EEnemyType, TSubclassOf<AEnemyBase>> EnemyClassMap;
+	
+	TArray<FEnemyTypeData> BuildEnemyPool(int32 CurrentWave);
+	EEnemyType PickEnemyFromPool(const TArray<FEnemyTypeData>& Pool, bool bEndOfWave);
+	
+	void ExecuteLevel();
+	void TrySpawnNext();
+	void OnEnemyDied();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame

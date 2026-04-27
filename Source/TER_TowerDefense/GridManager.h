@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/BoxComponent.h"
 #include "GridManager.generated.h"
 
 class APlantBase;
@@ -44,6 +45,9 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	public:
 	AGridManager();
 	
+	UPROPERTY()
+	UBoxComponent* LoseTrigger;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	int32 NumRows = 8;
 
@@ -66,6 +70,9 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	TArray<FGridCell> Cells;
 
 	FVector GridOrigin = FVector::ZeroVector;
+	
+	UPROPERTY(EditInstanceOnly, Category = "UI")
+	TSubclassOf<UUserWidget> GameOverWidgetClass;
 
 	virtual void BeginPlay() override;
 
@@ -86,6 +93,15 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	
 	UFUNCTION(BlueprintCallable, Category="Grid")
 	bool WorldToGrid(FVector WorldPos, int32& OutRow, int32& OutCol);
+	
+	UFUNCTION()
+	void OnEnemyReachedEnd(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 	
 #if WITH_EDITOR
 	virtual void OnConstruction(const FTransform& Transform) override;

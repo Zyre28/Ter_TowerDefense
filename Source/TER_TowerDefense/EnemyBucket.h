@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "EnemyBase.h"
-#include "EnemyBasic.generated.h"
+#include "EnemyBucket.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TER_TOWERDEFENSE_API AEnemyBasic : public AEnemyBase
+class TER_TOWERDEFENSE_API AEnemyBucket : public AEnemyBase
 {
 	GENERATED_BODY()
 	
-	
-	virtual void Tick(float DeltaTime) override;
+	AEnemyBucket();
 };

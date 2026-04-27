@@ -5,7 +5,7 @@
 
 AEnemyRapid::AEnemyRapid()
 {
-	this->MoveInterval = 1.0f;
-	this->MoveAmount = 3;
-	SetRank(2);
+	this->MaxHealth = 50.f;
+	this->MoveInterval /= 2;
+	this->MoveAmount *= 2;
 }

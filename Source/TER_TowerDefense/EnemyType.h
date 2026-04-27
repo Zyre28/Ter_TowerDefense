@@ -8,6 +8,10 @@ enum class EEnemyType : uint8
 {
 	Basic,
 	Rapid,
+	Cone,
+	Bucket,
+	Flag,
+	Tank
 };
 
 USTRUCT(BlueprintType)

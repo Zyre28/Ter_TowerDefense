@@ -162,11 +162,6 @@ void AEnemyBase::Move()
 	}
 }
 
-void AEnemyBase::SetRank(int32 _Rank)
-{
-	Rank = _Rank;
-}
-
 void AEnemyBase::SetId(int32 _Id)
 {
 	Id = _Id;

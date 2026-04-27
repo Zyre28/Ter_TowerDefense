@@ -12,4 +12,5 @@ public class TER_TowerDefenseTarget : TargetRules
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
 		ExtraModuleNames.Add("TER_TowerDefense");
 	}
+	
 }
