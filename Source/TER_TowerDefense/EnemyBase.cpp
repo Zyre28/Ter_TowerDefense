@@ -1,5 +1,5 @@
-﻿#include "D:\Ter\TER_TowerDefense\Intermediate\Build\Win64\x64\TER_TowerDefenseEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
-#include "EnemyBase.h"
+﻿#include "EnemyBase.h"
+
 #include "PlantBase.h"
 #include "MC.h"
 
@@ -28,13 +28,13 @@ void AEnemyBase::InitOnGrid(int32 Row, int32 Col, FVector WorldCenter)
 	// Debug : sphere verte au centre de la case
 	DrawDebugSphere(GetWorld(), WorldCenter, 4.f, 8, FColor::Red, false, 30.f, 0, 0.5f);
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy placed at Row=%d Col=%d Pos=%s"),
-		Row, Col, *WorldCenter.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy placed at Row=%d Col=%d Pos=%s"),
+	//	Row, Col, *WorldCenter.ToString());
 }
 
 void AEnemyBase::TakeDamage_Enemy(float DamageAmount)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Enemy [%d,%d] took : %f damages"), GridRow, GridCol, DamageAmount);
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy [%d,%d] took : %f damages"), GridRow, GridCol, DamageAmount);
 	CurrentHealth = (CurrentHealth - (DamageAmount - DamageAmount * Robustness)) > 0 ? (CurrentHealth - (DamageAmount - DamageAmount * Robustness)) : 0;
 	if (CurrentHealth == 0)
 	{

@@ -7,6 +7,7 @@
 #include "UA_Game.h"
 #include "MC.generated.h"
 
+class AGenerateManager;
 class AResourceManager;
 class APlantBase;
 
@@ -43,15 +44,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ActionSpawnPlant_2;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Plant", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class APlantBase> PlantBullet;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ActionSpawnPlant_3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ActionSpawnPlant_4;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Plant", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class APlantBase> PlantProducer;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Plant", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<APlantBase>> AvailablePlants;
+	
+	TArray<int32> PlantSlots;
+	
+	void AssignPlantToSlot(int32 SlotIndex, int32 PlantIndex);
+	void ClearSlot(int32 SlotIndex);
+	
+	TArray<int32> GetPlantSlots() const { return PlantSlots; }
+	TArray<TSubclassOf<APlantBase>> GetAvailablePlants() const { return AvailablePlants; }
 	
 	// GridManager 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Level|Grid")
-	TObjectPtr<class AGridManager> GridManager;
+	TObjectPtr<class AGenerateManager> GenerateManager;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Level|Resources")
 	TObjectPtr<class AResourceManager> ResourceManager;
 
@@ -77,12 +89,21 @@ public:
 	void OnDeath();
 	bool getIsDead() { return bIsDead; }
 	
-	TObjectPtr<AGridManager> GetGridManager();
-
+	void SetCurrentHealth(int32 CurrentHealth);
+	
+	TObjectPtr<AGenerateManager> GetGenerateManager();
+	void RefreshSlotsFromGameInstance();
 private :
 	void Move(const struct FInputActionValue& Value);
 	void Jump_();
 	void SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass);
-	void SpawnPlant(const struct FInputActionValue& Value);
+	
+	UPROPERTY()
 	UUA_Game* GameInstance;
+	
+	void SpawnPlantAtSlot(int32 SlotIndex);
+	void SpawnPlantSlot0() { SpawnPlantAtSlot(0); }
+	void SpawnPlantSlot1() { SpawnPlantAtSlot(1); }
+	void SpawnPlantSlot2() { SpawnPlantAtSlot(2); }
+	void SpawnPlantSlot3() { SpawnPlantAtSlot(3); }
 };

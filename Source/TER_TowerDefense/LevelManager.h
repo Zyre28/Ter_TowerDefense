@@ -5,9 +5,10 @@
 #include "CoreMinimal.h"
 #include "UA_Game.h"
 #include "GameFramework/Actor.h"
-#include "RoomType.h"
 #include "EnemyType.h" 
 #include "LevelManager.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlantSelectionConfirmed);
 
 class AEnemyBase;
 class AMC;
@@ -35,6 +36,7 @@ class TER_TOWERDEFENSE_API ALevelManager : public AActor
 	
 	int32 ActualLevel = 1; //WIP
 	
+	UPROPERTY()
 	UUA_Game* GameInstance;
 	
 	TArray<FEnemyWave> Waves;
@@ -43,8 +45,8 @@ class TER_TOWERDEFENSE_API ALevelManager : public AActor
 		{ EEnemyType::Basic, 1 },
 		{ EEnemyType::Rapid, 2 },
 		{ EEnemyType::Cone, 2 },
-		{ EEnemyType::Bucket, 3 },
-		{ EEnemyType::Tank, 4 },
+		{ EEnemyType::Bucket, 4 },
+		{ EEnemyType::Tank, 6 },
 	};
 	
 	int32 MaxPoolSize = 4;
@@ -57,18 +59,29 @@ public:
 	// Sets default values for this actor's properties
 	ALevelManager();
 	
+	UFUNCTION()
+	void StartLevel();
+	
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<UUserWidget> PlantSelectionWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* PlantSelectionWidget;
+	
+	void ShowPlantSelectionWidget();
+	
 	void SetMC(class AMC* MC);
 
 	void SetActualLevel(int32 ActualLevel);
 	int32 GetActualLevel();
 	
-	void SelectionLevel(ERoomType Room);
+	void SelectionLevel(FLevelTypeData LevelType);
 	
 	void MakeLevel1();
 	
 	int8 MaxEnemies;
 	int8 StillEnemies;
-	int8 NbWaves = 4;
+	int8 NbWaves = 1;
 	float CurrentWaveIndex = 0;
 	float CurrentEnemyIndex = 0;
 	bool bEndOfWave = false;
@@ -79,12 +92,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Level|Enemies")
 	TMap<EEnemyType, TSubclassOf<AEnemyBase>> EnemyClassMap;
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnPlantSelectionConfirmed OnPlantSelectionConfirmed;
+	
 	TArray<FEnemyTypeData> BuildEnemyPool(int32 CurrentWave);
 	EEnemyType PickEnemyFromPool(const TArray<FEnemyTypeData>& Pool, bool bEndOfWave);
 	
 	void ExecuteLevel();
 	void TrySpawnNext();
 	void OnEnemyDied();
+	void OnLevelComplete();
 
 protected:
 	// Called when the game starts or when spawned

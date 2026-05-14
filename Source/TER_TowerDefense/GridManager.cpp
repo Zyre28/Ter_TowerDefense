@@ -1,4 +1,5 @@
 #include "GridManager.h"
+
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "EnemyBase.h"
@@ -9,21 +10,12 @@
 
 AGridManager::AGridManager()
 {
-    PrimaryActorTick.bCanEverTick = false;
-
-    VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
-    RootComponent = VisualMesh;
-    
-    LoseTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("LoseTrigger"));
-    //Debugg Only WIP
-    LoseTrigger->SetupAttachment(RootComponent);
-    LoseTrigger->SetGenerateOverlapEvents(true);
 }
 
 void AGridManager::BeginPlay()
 {
     Super::BeginPlay();
-
+    
     FVector MeshOrigin, MeshExtent;
     VisualMesh->GetLocalBounds(MeshOrigin, MeshExtent);
 
@@ -56,17 +48,21 @@ void AGridManager::BeginPlay()
             FColor::Green, false, 30.f, 0, 0.3f);
     }
     
-    FVector LoseTriggerPos = GridOrigin + FVector(
+    FVector EventTriggerPos = GridOrigin + FVector(
         (NumCols * CellSizeX) * 0.5f,
         -CellSizeY * 0.5f - 50,
         0.f
     );
     
-    LoseTrigger->SetWorldLocation(LoseTriggerPos);
-    LoseTrigger->SetBoxExtent(FVector(NumCols * CellSizeX * 0.5f, CellSizeY * 0.5f, 50.f));
-    LoseTrigger->OnComponentBeginOverlap.AddDynamic(this, &AGridManager::OnEnemyReachedEnd);
-    LoseTrigger->SetHiddenInGame(false);
-    LoseTrigger->ShapeColor = FColor::Red;
+    EventTrigger->SetWorldLocation(EventTriggerPos);
+    EventTrigger->SetBoxExtent(FVector(NumCols * CellSizeX * 0.5f, CellSizeY * 0.5f, 50.f));
+    EventTrigger->OnComponentBeginOverlap.AddDynamic(this, &AGridManager::OnEventTrigger);
+    EventTrigger->SetHiddenInGame(false);
+    EventTrigger->ShapeColor = FColor::Red;
+}
+
+void AGridManager::InitGameplay()
+{
 }
 
 bool AGridManager::IsValidCell(int32 Row, int32 Col) const
@@ -237,7 +233,7 @@ void AGridManager::OnConstruction(const FTransform& Transform)
 }
 #endif
 
-void AGridManager::OnEnemyReachedEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AGridManager::OnEventTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
     bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -247,9 +243,9 @@ void AGridManager::OnEnemyReachedEnd(UPrimitiveComponent* OverlappedComp, AActor
     UE_LOG(LogTemp, Warning, TEXT("GameOver"));
     
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
-    if (PC && GameOverWidgetClass)
+    if (PC && WidgetClass)
     {
-        UUserWidget* Widget = CreateWidget<UUserWidget>(PC, GameOverWidgetClass);
+        UUserWidget* Widget = CreateWidget<UUserWidget>(PC, WidgetClass);
         if (Widget)
         {
             Widget->AddToViewport();

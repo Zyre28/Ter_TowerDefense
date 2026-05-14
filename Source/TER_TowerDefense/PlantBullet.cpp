@@ -44,7 +44,7 @@ void APlantBullet::Fire()
 	{
 		Bullet->InitDirection(FVector::RightVector);
 		Bullet->Damage = FireAmount;
-		UE_LOG(LogTemp, Warning, TEXT("Plant [%d,%d] fired a bullet of %d damages"),
-			GridRow, GridCol, FireAmount);
+		//UE_LOG(LogTemp, Warning, TEXT("Plant [%d,%d] fired a bullet of %d damages"),
+		//	GridRow, GridCol, FireAmount);
 	}
 }

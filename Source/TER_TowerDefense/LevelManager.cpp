@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#pragma once
 
 #include "LevelManager.h"
 
@@ -7,7 +7,10 @@
 #include "GridManager.h"
 #include "MC.h"
 #include "UA_Game.h"
+#include "LevelType.h"
 #include "Math/UnrealMathUtility.h"
+#include "Blueprint/UserWidget.h"
+
 
 // Sets default values
 ALevelManager::ALevelManager()
@@ -27,9 +30,20 @@ void ALevelManager::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Manager Tried"));
 		GameInstance->SetLevelManager(this);
 	}
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ALevelManager::ExecuteLevel, 0.5f, false);
-	UE_LOG(LogTemp, Warning, TEXT("Waves started"));
+	
+	OnPlantSelectionConfirmed.AddDynamic(
+		this,
+		&ALevelManager::StartLevel
+	);
+	ShowPlantSelectionWidget();
+}
+
+void ALevelManager::StartLevel()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Level STARTED after confirmation"));
+
+	FLevelTypeData LevelType = {ELevelType::Invasion, 1};
+	SelectionLevel(LevelType);
 }
 
 void ALevelManager::SetMC(AMC* _MC)
@@ -68,13 +82,16 @@ void ALevelManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void ALevelManager::SelectionLevel(ERoomType Room)
+void ALevelManager::SelectionLevel(FLevelTypeData LevelType)
 {
-	switch (Room)
+	switch (LevelType.LevelType)
 	{
-		case Gameplay: MakeLevel1(); break;
-		case Heal: break;
-		case Upgrade: break;
+		case ELevelType::Rampart : MakeLevel1(); break;
+		case ELevelType::Invasion : MakeLevel1(); break;
+		case ELevelType::Campfire: MakeLevel1(); break;
+		case ELevelType::MutationChamber: MakeLevel1(); break;
+		case ELevelType::BloodyChamber: MakeLevel1(); break;
+		case ELevelType::Refuge : MakeLevel1(); break;
 		default: break;
 	}
 }
@@ -205,12 +222,22 @@ void ALevelManager::MakeLevel1()
 		
 		//EndOfWave
 		for (int32 i = 0; i < 4 && i < WaveSize; i++)
+		{
 			Wave.EndOfWaves[i] = EEnemyType::Flag;
+		}
 		StartIndex = 4;
 		for (int32 i = StartIndex; i < WaveSize; i++)
+		{
 			Wave.EndOfWaves[i] = PickEnemyFromPool(Pool, true);
-		
+		}
 	}
+	
+	CurrentWaveIndex = 0;
+	CurrentEnemyIndex = 0;
+	CurrentOnScreen = 0.0f;
+	bEndOfWave = false;
+	TrySpawnNext();
+
 }
 
 TSubclassOf<AEnemyBase> ALevelManager::GetEnemyClassFromType(EEnemyType Type)
@@ -227,17 +254,14 @@ TSubclassOf<AEnemyBase> ALevelManager::GetEnemyClassFromType(EEnemyType Type)
 void ALevelManager::ExecuteLevel()
 {
 	MakeLevel1();
-	CurrentWaveIndex = 0;
-	CurrentEnemyIndex = 0;
-	CurrentOnScreen = 0.0f;
-	bEndOfWave = false;
-	TrySpawnNext();
 }
 
 void ALevelManager::TrySpawnNext()
 {
-	if (!MC || !MC->GetGridManager()) return;
-	if (MC->GetGridManager()->Cells.Num() == 0) return;
+	if (!MC || !MC->GetGenerateManager()) return;
+	AGridManager* GridManager = Cast<AGridManager>(MC->GetGenerateManager());
+	if (!GridManager) return;
+	if (GridManager->Cells.Num() == 0) return;
 	
 	if (CurrentWaveIndex >= Waves.Num()) 
 	{
@@ -262,11 +286,17 @@ void ALevelManager::TrySpawnNext()
 		UE_LOG(LogTemp, Warning, TEXT("Normal Waves"));
 	}
 	
-	if (*Still <= 0 || CurrentEnemyIndex >= List->Num()) return;
-	if (!bEndOfWave && CurrentOnScreen >= FMath::FloorToInt(MaxOnScreen)) return;
+	if (*Still <= 0 || CurrentEnemyIndex >= List->Num())
+	{
+		return;
+	}
+	if (!bEndOfWave && CurrentOnScreen >= FMath::FloorToInt(MaxOnScreen))
+	{
+		return;
+	}
 
 	TSubclassOf<AEnemyBase> EnemyClass = GetEnemyClassFromType((*List)[CurrentEnemyIndex]);
-	AEnemyBase* Enemy = MC->GetGridManager()->SpawnEnemy(EnemyClass);
+	AEnemyBase* Enemy = GridManager->SpawnEnemy(EnemyClass);
 
 	if (Enemy)
 	{
@@ -307,8 +337,38 @@ void ALevelManager::OnEnemyDied()
 			bEndOfWave = false;
 			CurrentEnemyIndex = 0;
 			CurrentWaveIndex++;
+			if (CurrentWaveIndex >= Waves.Num() && CurrentOnScreen == 0)
+			{
+				OnLevelComplete();
+				return;
+			}
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Waves ended"));
 	}
 
 	TrySpawnNext();
+}
+
+void ALevelManager::OnLevelComplete()
+{
+	MC->GetGenerateManager()->EndOfLevel();
+}
+
+void ALevelManager::ShowPlantSelectionWidget()
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC || !PlantSelectionWidgetClass) return;
+
+	PlantSelectionWidget = CreateWidget<UUserWidget>(PC, PlantSelectionWidgetClass);
+	if (!PlantSelectionWidget) return;
+
+	PlantSelectionWidget->AddToViewport();
+
+	PC->SetInputMode(FInputModeUIOnly());
+	PC->SetShowMouseCursor(true);
+
+	UE_LOG(LogTemp, Warning, TEXT("Plant Selection Widget shown"));
 }

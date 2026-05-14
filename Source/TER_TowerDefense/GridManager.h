@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenerateManager.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "GridManager.generated.h"
@@ -38,15 +39,15 @@ struct FGridCell
 };
 
 UCLASS()
-class TER_TOWERDEFENSE_API AGridManager : public AActor
+class TER_TOWERDEFENSE_API AGridManager : public AGenerateManager
 {
 	GENERATED_BODY()
 	
 	public:
 	AGridManager();
 	
-	UPROPERTY()
-	UBoxComponent* LoseTrigger;
+	
+	void InitGameplay();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	int32 NumRows = 8;
@@ -60,19 +61,10 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	float CellSizeY = 10.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid")
-	UStaticMeshComponent* VisualMesh;
-	
-	UPROPERTY(EditInstanceOnly, Category = "Grid")
-	AResourceManager* ResourceManager;
-
 	UPROPERTY()
 	TArray<FGridCell> Cells;
 
 	FVector GridOrigin = FVector::ZeroVector;
-	
-	UPROPERTY(EditInstanceOnly, Category = "UI")
-	TSubclassOf<UUserWidget> GameOverWidgetClass;
 
 	virtual void BeginPlay() override;
 
@@ -94,8 +86,7 @@ class TER_TOWERDEFENSE_API AGridManager : public AActor
 	UFUNCTION(BlueprintCallable, Category="Grid")
 	bool WorldToGrid(FVector WorldPos, int32& OutRow, int32& OutCol);
 	
-	UFUNCTION()
-	void OnEnemyReachedEnd(
+	virtual void OnEventTrigger (
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

@@ -2,6 +2,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GenerateManager.h"
 #include "GridManager.h"
 #include "InputActionValue.h"
 #include "EngineUtils.h"
@@ -14,7 +15,7 @@ AMC::AMC()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Movement 
-	GetCharacterMovement()->bOrientRotationToMovement = true; // turning while moving
+	GetCharacterMovement()->bOrientRotationToMovement = true; // turning while moving (still not working)
 	GetCharacterMovement()->RotationRate  = FRotator(0.f, 500.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed  = 500.f;
 	GetCharacterMovement()->JumpZVelocity = 600.f;
@@ -27,6 +28,9 @@ void AMC::BeginPlay()
 	if (GameInstance)
 	{
 		GameInstance->SetMC(this);
+		PlantSlots.Init(-1, GameInstance->MaxSlot);
+		//AssignPlantToSlot(0, 0); // Debugg only
+		//AssignPlantToSlot(1, 1); 
 	}
 	
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
@@ -41,10 +45,10 @@ void AMC::BeginPlay()
 		PC->bShowMouseCursor  = true;
 		PC->bEnableClickEvents = true;
 	}
-	if (!GridManager) {
+	if (!GenerateManager) {
 		for (TActorIterator<AGridManager> It(GetWorld()); It; ++It) {
-			GridManager = *It;
-			UE_LOG(LogTemp, Warning, TEXT("Found GridManager: %s"), *GridManager->GetName());
+			GenerateManager = *It;
+			UE_LOG(LogTemp, Warning, TEXT("Found GridManager: %s"), *GenerateManager->GetName());
 			break;
 		}
 	}
@@ -68,9 +72,16 @@ void AMC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EIC->BindAction(ActionDeplacer, ETriggerEvent::Triggered, this, &AMC::Move);
-		EIC->BindAction(ActionSauter,   ETriggerEvent::Started,   this, &AMC::Jump_);
-		EIC->BindAction(ActionSpawnPlant_1, ETriggerEvent::Started,   this, &AMC::SpawnPlant);
-		EIC->BindAction(ActionSpawnPlant_2, ETriggerEvent::Started,   this, &AMC::SpawnPlant);
+		EIC->BindAction(ActionSauter, ETriggerEvent::Started, this, &AMC::Jump_);
+
+		if (ActionSpawnPlant_1)
+			EIC->BindAction(ActionSpawnPlant_1, ETriggerEvent::Started, this, &AMC::SpawnPlantSlot0);
+		if (ActionSpawnPlant_2)
+			EIC->BindAction(ActionSpawnPlant_2, ETriggerEvent::Started, this, &AMC::SpawnPlantSlot1);
+		if (ActionSpawnPlant_3)
+			EIC->BindAction(ActionSpawnPlant_3, ETriggerEvent::Started, this, &AMC::SpawnPlantSlot2);
+		if (ActionSpawnPlant_4)
+			EIC->BindAction(ActionSpawnPlant_4, ETriggerEvent::Started, this, &AMC::SpawnPlantSlot3);
 	}
 }
 
@@ -91,7 +102,10 @@ void AMC::Jump_()
 }
 
 void AMC::SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass) {
-	if (!PlantClass || !GridManager || !ResourceManager) return;
+	if (!PlantClass || !GenerateManager || !ResourceManager) return;
+	
+	AGridManager* GridManager = Cast<AGridManager>(GenerateManager);
+	if (!GridManager) return;
 	
 	const APlantBase* DefaultPlant = PlantClass.GetDefaultObject();
 	
@@ -103,7 +117,7 @@ void AMC::SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass) {
 		FGridCell* Cell = GridManager->GetCellFromWorld(GetActorLocation());
 		if (!Cell || !Cell->IsEmpty())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Case [%d,%d] déjà occupée"), row, col);
+			UE_LOG(LogTemp, Warning, TEXT("Case [%d,%d] occupied"), row, col);
 			return;
 		}
 		if (ResourceManager->SpendResources(DefaultPlant->ActualCost, DefaultPlant->TypeResource))
@@ -116,55 +130,6 @@ void AMC::SpawnPlantInGrid(TSubclassOf<class APlantBase> PlantClass) {
 		}
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Player is NOT on a valid grid cell"));
-	}
-}
-
-void AMC::SpawnPlant(const FInputActionValue& Value)
-{
-	float RawValue = Value.Get<float>();
-	int32 Key = FMath::RoundToInt(RawValue);
-
-	switch (Key)
-	{
-	case 1:
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				5.f,
-				FColor::Red,
-				FString::Printf(TEXT("Valid plant key (bullet): %d"), Key)
-			);
-		}
-		SpawnPlantInGrid(PlantBullet);
-		break;
-
-	case 2:
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				5.f,
-				FColor::Red,
-				FString::Printf(TEXT("Valid plant key (producer): %d"), Key)
-			);
-		}
-		SpawnPlantInGrid(PlantProducer);
-		break;
-
-	default:
-		UE_LOG(LogTemp, Warning, TEXT("Invalid plant key: %d"), Key);
-
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				5.f,
-				FColor::Red,
-				FString::Printf(TEXT("Invalid plant key: %d"), Key)
-			);
-		}
-		break;
 	}
 }
 
@@ -199,14 +164,121 @@ void AMC::OnDeath()
 	bIsDead = true;
 }
 
-TObjectPtr<AGridManager> AMC::GetGridManager()
+void AMC::AssignPlantToSlot(int32 SlotIndex, int32 PlantIndex)
 {
-	return GridManager;
+	if (!PlantSlots.IsValidIndex(SlotIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SlotIndex %d invalid"), SlotIndex);
+		return;
+	}
+	if (!AvailablePlants.IsValidIndex(PlantIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlantIndex %d invalid"), PlantIndex);
+		return;
+	}
+	if (GameInstance)
+	{
+		FString PlantName = AvailablePlants[PlantIndex]->GetName();
+		//UE_LOG(LogTemp, Warning, TEXT(" UE name : %s"), *PlantName);
+		FPlantData* Data = GameInstance->PlantsData.Find(PlantName);
+		if (!Data)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Plant not found: %s"), *PlantName);
+			return;
+		}
+
+		if (Data->Availability != 2)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s not equipped"), *PlantName);
+			return;
+		}
+	}
+
+	PlantSlots[SlotIndex] = PlantIndex;
+	UE_LOG(LogTemp, Warning, TEXT("Slot %d → %s"), SlotIndex, *AvailablePlants[PlantIndex]->GetName());
+}
+
+void AMC::ClearSlot(int32 SlotIndex)
+{
+	if (!PlantSlots.IsValidIndex(SlotIndex))
+	{
+		return;
+	}
+	PlantSlots[SlotIndex] = -1;
+}
+
+void AMC::SpawnPlantAtSlot(int32 SlotIndex)
+{
+	if (!PlantSlots.IsValidIndex(SlotIndex))
+	{
+		return;
+	}
+
+	int32 PlantIndex = PlantSlots[SlotIndex];
+	if (PlantIndex == -1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Slot %d si empty"), SlotIndex);
+		return;
+	}
+
+	if (!AvailablePlants.IsValidIndex(PlantIndex))
+	{
+		return;
+	}
+
+	SpawnPlantInGrid(AvailablePlants[PlantIndex]);
+}
+
+TObjectPtr<AGenerateManager> AMC::GetGenerateManager()
+{
+	return GenerateManager;
+}
+
+void AMC::SetCurrentHealth(int32 _CurrentHealth)
+{
+	CurrentHealth = _CurrentHealth;
+}
+
+void AMC::RefreshSlotsFromGameInstance()
+{
+	if (!GameInstance) return;
+    
+	// Vide tous les slots
+	for (int32 i = 0; i < GameInstance->MaxSlot; i++)
+	{
+		ClearSlot(i);
+	}
+    
+	// Remplit avec les plantes qui ont Availability == 2
+	int32 SlotIndex = 0;
+	for (const auto& Pair : GameInstance->PlantsData)
+	{
+		if (Pair.Value.Availability == 2 && SlotIndex < GameInstance->MaxSlot)
+		{
+			int32 PlantIndex = -1;
+			for (int32 i = 0; i < AvailablePlants.Num(); i++)
+			{
+				if (AvailablePlants[i] && AvailablePlants[i]->GetName() == Pair.Key)
+				{
+					PlantIndex = i;
+					break;
+				}
+			}
+            
+			if (PlantIndex != -1)
+			{
+				// Appelle AssignPlantToSlot SANS la vérification d'Availability
+				// ou modifie AssignPlantToSlot pour ne plus vérifier
+				PlantSlots[SlotIndex] = PlantIndex;
+				SlotIndex++;
+			}
+		}
+	}
 }
 
 AMC::~AMC()
 {
-	if (GameInstance)
+	if (GameInstance && IsValid(GameInstance))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AMC destruction"));
 		GameInstance->UnSetMC();	

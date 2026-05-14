@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "EngineUtils.h"
 #include "ProjectileBullet.h"
 
 #include "EnemyBase.h"
@@ -39,8 +38,8 @@ AProjectileBullet::AProjectileBullet()
 void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Overlap enabled for Projectile: %d"), Mesh->GetGenerateOverlapEvents());
-	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *ProjectileMovement->Velocity.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Overlap enabled for Projectile: %d"), Mesh->GetGenerateOverlapEvents());
+	//UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *ProjectileMovement->Velocity.ToString());
 	StartLocation = GetActorLocation();
 	if (SpawnSound)
 	{
@@ -57,14 +56,14 @@ void AProjectileBullet::OnOverlap(
 		bool bFromSweep,
 		const FHitResult& SweepResult)
 {	
-	UE_LOG(LogTemp, Warning, TEXT("OnOverlap Projectile CALLED with"));
+	//UE_LOG(LogTemp, Warning, TEXT("OnOverlap Projectile CALLED with"));
 	if (!OtherActor || OtherActor == this || OtherActor == GetOwner()) return;
-	UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped : %s"), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped : %s"), *OtherActor->GetName());
 	
 	AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
 	if (Enemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped an Enemy: %s"), *OtherActor->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped an Enemy: %s"), *OtherActor->GetName());
 		Enemy->TakeDamage_Enemy(Damage);
 		if (HitSound)
 		{
@@ -88,7 +87,7 @@ void AProjectileBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float ActualRange = FVector::Dist(StartLocation, GetActorLocation());
-	UE_LOG(LogTemp, Warning, TEXT("Tick Bullet found (x,y) : %f"), ActualRange);
+	//UE_LOG(LogTemp, Warning, TEXT("Tick Bullet found (x,y) : %f"), ActualRange);
 
 	if (ActualRange >= BaseRange)
 	{
